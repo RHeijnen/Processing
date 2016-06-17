@@ -1,0 +1,197 @@
+// What do you need : 
+// Fonts for testing can be found on : https://www.dropbox.com/sh/76bxo8quysfo3yj/AAAi9zmXhMzs0F6-mk_DjSlJa?dl=0
+// CSV file to parse can be found on :  https://www.dropbox.com/sh/76bxo8quysfo3yj/AAAi9zmXhMzs0F6-mk_DjSlJa?dl=0
+// Change documents path (Cntrl F TODO)
+//
+// Processing 3.1 or higher
+//
+// By Mark Hartgring and Rene Heijnen
+// For known buggs visit repo on : 
+
+BufferedReader reader;
+String line;
+FloatList Xas;
+FloatList Yas;
+FloatList Zas;
+int xconstant = 92796; // change to apply to diffrent area
+int yconstant = 436960; // change to apply to diffrent area
+int counter = 0;
+float waterheight = -25.0;
+float waterincrement = 0.5;
+boolean started = true;
+boolean mapswitch = true;
+String mapdescription = " ";
+float timepassed;
+
+void readFile(){
+  Xas = new FloatList(); 
+  Yas = new FloatList(); 
+  Zas = new FloatList(); 
+
+   try{
+      while((line = reader.readLine()) != null){
+        String[] pieces = split(line, ',');
+        float x = float(pieces[0]);
+        float y = float(pieces[1]);
+        float z = float(pieces[2]);
+        Xas.append(x);
+        Yas.append(y);
+        Zas.append(z);
+      }
+    }
+    catch(Exception e)
+    {
+      e.printStackTrace();
+    }
+}
+void DrawMap(int offset){
+   for(int i=0; i <Xas.size(); i++){
+      float Xadjusted = Xas.get(i);
+      float Yadjusted = Yas.get(i);
+      float Zadjusted = Zas.get(i);
+     // println(Xas[i]);
+     if(xconstant-offset <Xas.get(i) && xconstant+offset >Xas.get(i) &&  yconstant+offset > Yas.get(i) &&yconstant-offset < Yas.get(i) ){
+      Xadjusted = map(Xadjusted, xconstant-offset, xconstant+offset, 0, width-200);
+      Yadjusted = map(Yadjusted, yconstant+offset, yconstant-offset, 0, height); 
+
+     }
+
+     
+      //println("-");
+
+    if (Zadjusted < 1f) {
+      //blue
+        stroke(color(0,0,255));
+        fill(color(0,0,255));
+      }else if(Zadjusted >= 1f && Zadjusted < 5f) {
+        stroke(color(100,100,100));
+        fill(color(100,100,100));
+      }else if(Zadjusted >= 5f && Zadjusted < 15f){
+        //licht grijs
+        stroke(color(180,180,180));
+        fill(color(180,180,180));
+      } else if(Zadjusted <= 15f && Zadjusted <= 30f){
+        stroke(color(67,72,80));
+        fill(color(67,72,80));
+      
+      } else {
+        stroke(color(0,0,0));
+        fill(color(0,0,0));
+      }
+      ellipse(Xadjusted, Yadjusted, 2, 2);
+   }
+}
+
+
+void animate(int offset){
+  if(frameCount % 4 == 0){
+    waterheight += waterincrement;
+    timepassed += waterincrement/0.5;
+   } 
+   
+  for(int i=0; i <Xas.size(); i++){
+    if (Zas.get(i) < waterheight){
+      float Xadjusted = Xas.get(i);;
+      float Yadjusted = Yas.get(i);;
+           if(xconstant-offset <Xas.get(i) && xconstant+offset >Xas.get(i) &&  yconstant+offset > Yas.get(i) &&yconstant-offset < Yas.get(i) ){
+              Xadjusted = map(Xadjusted, xconstant-offset, xconstant+offset, 0, width-200);
+              Yadjusted = map(Yadjusted, yconstant+offset, yconstant-offset, 0, height); 
+              stroke(color(255,0,255));
+              fill(color(255,0,255));
+              ellipse(Xadjusted, Yadjusted, 2, 2);
+           }
+        
+    }
+  }
+}
+void keyPressed() {
+ if (keyPressed) {
+   println(keyCode);
+   int value = keyCode;
+    if (value == 32){
+      if (started == true){
+      noLoop();
+      started = false;
+      }else{
+        loop();
+        started = true;
+      }
+    }else if (value == 38) {
+      waterincrement = waterincrement+0.1; // up
+      println(waterincrement);
+    }else if (value == 40) {
+      waterincrement = waterincrement-0.1; // down
+      println(waterincrement);
+    }else if (value == 39) { // right
+      waterheight = -25.0;
+      timepassed = 0;
+      println(waterheight);
+    }else if (value == 37) { // left
+      println("testingmap");
+      if(mapswitch == true){
+        DrawMap(500);
+        mapdescription = "1000x1000";
+        mapswitch = false;
+        waterheight = -25.0;
+        timepassed = 0;
+      }else {
+        DrawMap(250);
+        mapdescription = "500x500";
+        mapswitch = true;
+        waterheight = -25.0;
+        timepassed = 0;
+
+      }
+    }else if (value == 106) {  // *
+         save("C:\\Users\\Indi\\Documents\\image.jpg"); // Change username [ TODO ] 
+    } else {
+    println("hoi");  
+  }
+  }
+}
+
+
+
+
+void setup(){    
+   size(700, 500);
+   reader = createReader("Dev3_ass3_parsed.csv");
+   mapdescription = "500x500";
+   readFile();
+   DrawMap(250);
+
+}
+void animateLegenda(){
+        fill(255, 255, 255);
+        rect(505, 5,190, 490);
+        
+        textSize(18);
+        fill(0, 102, 153);
+        text("Rotterdam\n\rOverstroming\n\rSimulatie", 545, 40);
+        line(505, 100, 695, 100);
+        //
+        textSize(11);
+        text("Current map = " + mapdescription, 525, 125);
+        text("Current waterlevel = " + waterheight, 525, 140);
+        text("Current water increment = " + waterincrement, 525, 155);
+        text("Time passed in hours= " + timepassed, 525, 170);
+        line(505, 200, 695, 200);
+        //
+        text("Controls", 575, 215);
+        text("Pauze  = Space Bar ", 515, 235);
+        text("+ water increment = Up Arrow ", 515, 255);
+        text("- water increment = Down Arrow", 515, 275);
+        text("Switch mapsize  = Left Arrow", 515, 295);
+        text("Save Image to documents = * ", 515, 315);
+}
+
+void draw(){
+if(mapswitch == true){
+       animate(250);
+      }else {
+       animate(500);
+      }
+      animateLegenda();
+}
+
+

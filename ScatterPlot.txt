@@ -1,0 +1,146 @@
+BufferedReader textparser;
+String line;
+String[] stringpart;
+int[] stnr = {};
+int[] lftd = {};
+float[] analyse = {};
+float[] development= {};
+float[] project = {};
+float[] skills = {};
+int Yrealign = 0;
+int maxleeftijd = 30;
+
+void getFileContent(){
+      try{
+    while((line = textparser.readLine()) != null){
+      stringpart = split(line, TAB);
+        if (!stringpart[0].equals("stnr")) {
+
+          // temp variables cus the append wont take cast(array[item]) 
+          // as argument for some reason
+          int temp_stnr = int(stringpart[0]);
+          int temp_lftd = int(stringpart[1]);
+          float temp_ana = float(stringpart[2].replace(",",".")); 
+          float temp_dev = float(stringpart[3].replace(",",".")); 
+          float temp_prj = float(stringpart[4].replace(",",".")); 
+          float temp_skl = float(stringpart[5].replace(",",".")); 
+
+          stnr = append(stnr,temp_stnr);
+          lftd = append(lftd,temp_lftd);
+          analyse = append(analyse,temp_ana);
+          development = append(development,temp_dev);
+          project = append(project,temp_prj);
+          skills = append(skills,temp_skl);
+
+        }
+     }   
+   }catch(Exception e){
+     // stuff
+   }
+}
+void setText(){
+  
+}
+
+void drawstuff(int A,int B,int C,int D,int E,String plotDescription){
+    
+  line(A, B, C, D); // Left
+  line(A, D, E, D); // Bot
+  
+  fill(0, 102, 153); // zet score neer
+  text("Score", A+100, D+15);
+  
+  // zet leeftijd neer op de Y as
+  String YasDescription = "Leeftijd";
+  for (int counter = 0 ;counter < YasDescription.length(); counter++){
+    text(YasDescription.charAt(counter), A-15, B+50+Yrealign);
+    Yrealign = Yrealign+10;
+  }
+  Yrealign = 0; // reset Y as desription alligner
+  fill(255, 0, 255); // X/Y as description color
+  text("0", A+5,D+15 );
+  text("15", A-15,D-5 );
+
+  text("10", E,D+15 );
+  text(str(maxleeftijd), A-15,B );
+  text(plotDescription, A+50,B+50 );
+
+}
+
+void getGradeColor(float Xas, float Yas,int counter,float[] gradeArray){
+      if(gradeArray[counter] <=5.4){
+      fill(255, 13, 0); // X/Y as description color
+      ellipse(Xas, Yas, 10, 10);
+
+      }else if (gradeArray[counter] == 5.5){
+      fill(242, 181, 40); // X/Y as description color
+      ellipse(Xas, Yas, 10, 10);
+
+      }else if (gradeArray[counter] >= 5.6){
+      fill(133, 253, 13); // X/Y as description color
+      ellipse(Xas, Yas, 10, 10);
+      }
+
+}
+
+void getContent(){
+   getFileContent(); 
+  
+  // plot 1
+  for(int counter = 0; counter < stnr.length;counter++){
+    
+    float x = map(analyse[counter], 0, 10, 25, 275); 
+    float y = map(lftd[counter], 15, maxleeftijd, 275, 25); 
+    getGradeColor(x,y,counter,analyse);
+    
+  }
+  
+  // plot 2
+   for(int counter = 0; counter < stnr.length;counter++){
+    
+    float x = map(development[counter], 0, 10, 25, 275); 
+    float y = map(lftd[counter], 15, maxleeftijd, 575, 325); 
+    getGradeColor(x,y,counter,development);
+    
+  } 
+  
+    // plot 3
+   for(int counter = 0; counter < stnr.length;counter++){
+    
+    float x = map(project[counter], 0, 10, 325, 575); 
+    float y = map(lftd[counter], 15, maxleeftijd, 275, 25); 
+    getGradeColor(x,y,counter,project);
+    
+  } 
+  
+    // plot 4
+   for(int counter = 0; counter < stnr.length;counter++){
+    
+    float x = map(skills[counter], 0, 10, 325, 575); 
+    float y = map(lftd[counter], 15, maxleeftijd, 575, 325); 
+    getGradeColor(x,y,counter,skills);
+    
+  } 
+}
+
+
+
+//
+void setup() {
+  // read file
+  textparser = createReader("studentcijfers.txt");
+  size(600,600);
+  background(255);
+
+  drawstuff(25,25,25,height-height/2-25, width-width/2-25,"Analyse");
+  drawstuff(25, height-height/2+25,25, height-25,width-width/2-25,"Development"); 
+  drawstuff(width-width/2+25,25,width-width/2+25,height-height/2-25, width-25,"Project");
+  drawstuff(width-width/2+25,height-height/2+25,width-width/2+25,height-25,width-25,"Skills");
+
+}
+
+
+void draw() {
+ getContent();
+  
+}
